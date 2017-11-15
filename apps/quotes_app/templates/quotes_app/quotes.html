@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+    <h1>Welcome, {{request.session.name}}!</h1>
+    <div>
+        <h2>Quotable Quotes:</h2>
+        {% for quote in quotes %}
+            
+                <div>
+                    <h4>{{ quote.author }}</h4>
+                    <p>{{ quote.quote }}</p>
+                    <p>posted by <a href='/users/{{ quote.user.id }}'>{{ quote.user.name }}</a> </p>
+                    <form action='/quotes/favorite' method='POST'>
+                        {% csrf_token %}
+                        <input type="hidden" name="quote" value= '{{ quote.id }}'>               
+                        <input type="hidden" name="user" value= '{{request.session.user_id}}'>
+                        <button >Add to favorites</button>
+                    </form>
+                </div>
+            
+        {% endfor %}
+    </div>
+    <div>
+        <h2>Your Favorites:</h2>
+        {% for favorite in favorites %}
+            
+            <h4>{{favorite.quote.author}}</h4>
+            <p>{{favorite.quote.quote}}</p>
+            <form action='quotes/remove_favorite' method='POST'>
+                {% csrf_token %}
+                <input type="hidden" name="quote" value= '{{ favorite.quote.id }}'>               
+                <input type="hidden" name="user" value= '{{request.session.user_id}}'>
+                <button>Remove from favorites</button>
+            </form>  
+        {% endfor %}
+    </div>
+    <div>
+        <h3>Contribute a Quote:</h3>
+        <form action='/quotes/add' method='POST'>
+            {% csrf_token %}
+            <label>Quoted by: </label><input type='text' name='author'>
+            <label>Message: </label><textarea type='text' name='quote'></textarea>
+            <input type="hidden" name="user" value= '{{request.session.user_id}}'>
+            <button>Submit</button>
+        </form>
+    </div>
+    {% if messages %}
+    <ul class="messages">
+        {% for message in messages %}
+        <li>{{ message }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+
+    <a href="/logout">Logout</a>
+</body>
+</html>
